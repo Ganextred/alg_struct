@@ -51,7 +51,37 @@ def lcm(a, b):
     return abs(a * b) // gcd(a, b)
 
 
-# Press the green button in the gutter to run the script.
+def extended_gcd(a, b):
+    x, xx, y, yy = 1, 0, 0, 1
+    while b:
+        q = a // b
+        a, b = b, a % b
+        x, xx = xx, x - xx * q
+        y, yy = yy, y - yy * q
+    return (a, x, y)
+
+def mod_inverse(a, m):
+    g, x, _ = extended_gcd(a, m)
+    if g != 1:
+        raise Exception('Inverse does not exist')
+    else:
+        return x % m
+
+def chinese_remainder_theorem(congruences):
+    # congruences is a list of tuples (a_i, m_i)
+    M = 1
+    for _, m in congruences:
+        M *= m
+
+    x = 0
+    for a, m in congruences:
+        M_i = M // m
+        inv = mod_inverse(M_i, m)
+        x += a * M_i * inv
+
+    return x % M
+
+
 if __name__ == '__main__':
     print(mobius(4))
     print(euler(42))
@@ -59,4 +89,7 @@ if __name__ == '__main__':
     b=1
     print(gcd(115,1), lcm(a,b))
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    congruences = [(1, 2), (2, 3), (6, 7)]
+    print(chinese_remainder_theorem(congruences))
+
+
