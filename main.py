@@ -81,15 +81,40 @@ def chinese_remainder_theorem(congruences):
 
     return x % M
 
+#3
+def legendre_symbol(a, p):
+    if a % p == 0:
+        return 0
+    elif pow(a, (p - 1) // 2, p) == 1:
+        return 1
+    else:
+        return -1
+
+def jacobi_symbol(a, p):
+    if p % 2 == 0 or p <= 0:
+        raise ValueError("Jacobi symbol is defined for odd positive integers only.")
+    if a == 0:
+        return 0
+
+    result = 1
+    for e in prime_factorization(p):
+        result *= legendre_symbol(a, e)
+    return result
+
 
 if __name__ == '__main__':
+    #1
     print(mobius(4))
     print(euler(42))
     a=115
     b=1
     print(gcd(115,1), lcm(a,b))
-
+    #2
     congruences = [(1, 2), (2, 3), (6, 7)]
     print(chinese_remainder_theorem(congruences))
-
+    #3
+    a = 3
+    b = 9
+    print(legendre_symbol(a,b))
+    print(jacobi_symbol(a,b))
 
