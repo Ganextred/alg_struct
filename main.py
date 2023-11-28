@@ -131,30 +131,11 @@ def rho_pollard(n):
     else:
         return d
 
-
-# task 6
-def convert_to_base(num, base):
-    result = []
-    while num > 0:
-        result.append(num % base)
-        num //= base
-    return result[::-1]
-# task
-def mod_exp(base, exponent, modulus):
-    result = 1
-    base = base % modulus
-
-    while exponent > 0:
-        if exponent % 2 == 1:
-            result = (result * base) % modulus
-        exponent = exponent // 2
-        base = (base * base) % modulus
-
-    return result
+# task 5
 def baby_step_giant_step(a, b, n):
     m = int(n ** 0.5) + 1
 
-    baby_steps = {mod_exp(a, i, n): i for i in range(m)}
+    baby_steps = {pow(a, i, n): i for i in range(m)}
 
     giant_step_multiplier = a**(m * (n - 2))%n
 
@@ -168,6 +149,13 @@ def baby_step_giant_step(a, b, n):
 
     return None  # No match found
 
+# task 6
+def convert_to_base(num, base):
+    result = []
+    while num > 0:
+        result.append(num % base)
+        num //= base
+    return result[::-1]
 
 
 def cipolla_mult(pair1, pair2, w, p):
@@ -198,6 +186,23 @@ def cipolla(n, p):
 
     return x1[0], (-x1[0] % p)
 
+# task 7
+def solovay_strassen(n, k=5):
+    if n == 2:
+        return True
+
+    if n % 2 == 0 or n == 1:
+        return False
+
+    for _ in range(k):
+        a = random.randint(2, n - 1)
+        jacobi = jacobi_symbol(a, n)
+        power = pow(a, (n - 1) // 2, n)
+
+        if jacobi % n != power:
+            return False
+
+    return True
 
 if __name__ == '__main__':
     # 1
@@ -231,4 +236,8 @@ if __name__ == '__main__':
     print("Roots of 56 mod 101:", r[0], r[1], r[0] ** 2 % 101 == 56, r[1] ** 2 % 101 == 56)
     r = cipolla(1, 11)
     print("Roots of 1 mod 11:", r[0], r[1], r[0] ** 2 % 11 == 1, r[1] ** 2 % 11 == 1)
-
+    # 7
+    i = 283
+    print(i, "is prime:", solovay_strassen(i))
+    i = 287
+    print(i, "is prime:", solovay_strassen(i))
