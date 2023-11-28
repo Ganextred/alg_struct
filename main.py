@@ -112,6 +112,25 @@ def jacobi_symbol(a, p):
         result *= legendre_symbol(a, e)
     return result
 
+# task 4
+def rho_pollard(n):
+    def g(x):
+        return (x ** 2 + 1) % n
+
+    x = 2  # starting value
+    y = x
+    d = 1
+
+    while d == 1:
+        x = g(x)
+        y = g(g(y))
+        d = gcd(abs(x - y), n)
+
+    if d == n:
+        return None  # Failure, couldn't factorize
+    else:
+        return d
+
 
 # task 6
 def convert_to_base(num, base):
@@ -120,7 +139,34 @@ def convert_to_base(num, base):
         result.append(num % base)
         num //= base
     return result[::-1]
+# task
+def mod_exp(base, exponent, modulus):
+    result = 1
+    base = base % modulus
 
+    while exponent > 0:
+        if exponent % 2 == 1:
+            result = (result * base) % modulus
+        exponent = exponent // 2
+        base = (base * base) % modulus
+
+    return result
+def baby_step_giant_step(a, b, n):
+    m = int(n ** 0.5) + 1
+
+    baby_steps = {mod_exp(a, i, n): i for i in range(m)}
+
+    giant_step_multiplier = a**(m * (n - 2))%n
+
+    for j in range(m):
+        current_value = (b * (giant_step_multiplier**j)) % n
+
+
+        # Check if the value matches a baby step
+        if current_value in baby_steps:
+            return j * m + baby_steps[current_value]
+
+    return None  # No match found
 
 
 
@@ -168,6 +214,14 @@ if __name__ == '__main__':
     b = 9
     print(legendre_symbol(a, b))
     print(jacobi_symbol(a, b))
+    #4
+    print("Task 4, Pollard's rho algorithm:")
+    print(rho_pollard(291))
+    print()
+    #5
+    print("Task 5, Baby-step giant-step")
+    print(baby_step_giant_step(5, 3, 23))
+    print()
     # 6
     r = cipolla(2, 7)
     print("Roots of 2 mod 7:", r[0], r[1], r[0] ** 2 % 7, r[1] ** 2 % 7 == 2, 2 % 7 == 2)
@@ -177,3 +231,4 @@ if __name__ == '__main__':
     print("Roots of 56 mod 101:", r[0], r[1], r[0] ** 2 % 101 == 56, r[1] ** 2 % 101 == 56)
     r = cipolla(1, 11)
     print("Roots of 1 mod 11:", r[0], r[1], r[0] ** 2 % 11 == 1, r[1] ** 2 % 11 == 1)
+
