@@ -1,4 +1,5 @@
 # This is a sample Python script.
+import math
 import random
 
 
@@ -107,10 +108,23 @@ def jacobi_symbol(a, p):
     if a == 0:
         return 0
 
+    a %= p
     result = 1
-    for e in prime_factorization(p):
-        result *= legendre_symbol(a, e)
-    return result
+    while a != 0:
+        while a % 2 == 0:
+            a /= 2
+            n_mod_8 = p % 8
+            if n_mod_8 in (3, 5):
+                result = -result
+        a, p = p, a
+        if a % 4 == 3 and p % 4 == 3:
+            result = -result
+        a %= p
+    if p == 1:
+        return result
+    else:
+        return 0
+
 
 # task 4
 def rho_pollard(n):
@@ -131,23 +145,24 @@ def rho_pollard(n):
     else:
         return d
 
+
 # task 5
 def baby_step_giant_step(a, b, n):
     m = int(n ** 0.5) + 1
 
     baby_steps = {pow(a, i, n): i for i in range(m)}
 
-    giant_step_multiplier = a**(m * (n - 2))%n
+    giant_step_multiplier = a ** (m * (n - 2)) % n
 
     for j in range(m):
-        current_value = (b * (giant_step_multiplier**j)) % n
-
+        current_value = (b * (giant_step_multiplier ** j)) % n
 
         # Check if the value matches a baby step
         if current_value in baby_steps:
             return j * m + baby_steps[current_value]
 
     return None  # No match found
+
 
 # task 6
 def convert_to_base(num, base):
@@ -168,7 +183,7 @@ def cipolla(n, p):
     phi = p - 1
     aa = 0
     for i in range(1, p):
-        if legendre_symbol(i*i-n, p) == -1:
+        if legendre_symbol(i * i - n, p) == -1:
             aa = i
             break
 
@@ -185,6 +200,7 @@ def cipolla(n, p):
             x2 = cipolla_mult(x2, x2, aa * aa - n, p)
 
     return x1[0], (-x1[0] % p)
+
 
 # task 7
 def solovay_strassen(n, k=5):
@@ -204,6 +220,81 @@ def solovay_strassen(n, k=5):
 
     return True
 
+
+# task 8
+def sieve_eratosthenes(n):
+    prime = [True for i in range(n + 1)]
+    p = 2
+    while (p * p <= n):
+
+        # If prime[p] is not
+        # changed, then it is a prime
+        if (prime[p] == True):
+
+            # Update all multiples of p
+            for i in range(p * p, n + 1, p):
+                prime[i] = False
+        p += 1
+    res = []
+    # Print all prime numbers
+    for p in range(2, n + 1):
+        if prime[p]:
+            res.append(p)
+    return res
+
+
+first_primes_list = sieve_eratosthenes(1000)
+
+
+def is_prime(num):
+    for prm in first_primes_list:
+        if num % prm == 0:
+            return False
+    if num < 2 or num % 2 == 0 or num % 3 == 0 or num % 5 == 0:
+        return False
+    if not solovay_strassen(num, 10):
+        return False
+    print("prime", num)
+    return True
+
+
+def generate_prime(bits):
+    while True:
+        candidate = random.getrandbits(bits)
+        if is_prime(candidate):
+            return candidate
+
+
+def generate_keypair(bits):
+    p = generate_prime(bits)
+    q = generate_prime(bits)
+
+    n = p * q
+    phi = (p - 1) * (q - 1)
+
+    # Choose public exponent e
+    e = random.randint(2, phi - 1)
+    while gcd(e, phi) != 1:
+        e = random.randint(2, phi - 1)
+
+    # Calculate private exponent d
+    d = mod_inverse(e, phi)
+
+    return (n, e), (n, d)
+
+
+def encrypt(message, public_key):
+    n, e = public_key
+    cipher_text = [pow(ord(char), e, n) for char in message]
+    return cipher_text
+
+
+def decrypt(cipher_text, private_key):
+    n, d = private_key
+    decrypted_text = [chr(pow(char, d, n)) for char in cipher_text]
+    return ''.join(decrypted_text)
+
+
 if __name__ == '__main__':
     # 1
     print(mobius(4))
@@ -219,15 +310,16 @@ if __name__ == '__main__':
     b = 9
     print(legendre_symbol(a, b))
     print(jacobi_symbol(a, b))
-    #4
+    # 4
     print("Task 4, Pollard's rho algorithm:")
     print(rho_pollard(291))
     print()
-    #5
+    # 5
     print("Task 5, Baby-step giant-step")
     print(baby_step_giant_step(5, 3, 23))
     print()
     # 6
+    print("Task 6, Cipolla")
     r = cipolla(2, 7)
     print("Roots of 2 mod 7:", r[0], r[1], r[0] ** 2 % 7, r[1] ** 2 % 7 == 2, 2 % 7 == 2)
     r = cipolla(8218, 10007)
@@ -237,7 +329,19 @@ if __name__ == '__main__':
     r = cipolla(1, 11)
     print("Roots of 1 mod 11:", r[0], r[1], r[0] ** 2 % 11 == 1, r[1] ** 2 % 11 == 1)
     # 7
+    print("Task 7, Solovay Strassen")
     i = 283
     print(i, "is prime:", solovay_strassen(i))
     i = 287
     print(i, "is prime:", solovay_strassen(i))
+    # 8
+    print(first_primes_list)
+
+    print("Task 8, RSA")
+    bits = 128
+    public_key, private_key = generate_keypair(bits)
+    message = "Supper secret message!"
+    encrypted_message = encrypt(message, public_key)
+    print("Encrypted message:", encrypted_message)
+    decrypted_message = decrypt(encrypted_message, private_key)
+    print("Decrypted message:", decrypted_message)
