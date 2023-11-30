@@ -242,7 +242,7 @@ def sieve_eratosthenes(n):
             res.append(p)
     return res
 
-
+#task 9 RSA
 first_primes_list = sieve_eratosthenes(1000)
 
 
@@ -250,7 +250,7 @@ def is_prime(num):
     for prm in first_primes_list:
         if num % prm == 0:
             return False
-    if num < 2 or num % 2 == 0 or num % 3 == 0 or num % 5 == 0:
+    if num < 2 :
         return False
     if not solovay_strassen(num, 10):
         return False
