@@ -294,6 +294,109 @@ def decrypt(cipher_text, private_key):
     decrypted_text = [chr(pow(char, d, n)) for char in cipher_text]
     return ''.join(decrypted_text)
 
+# task 9
+# Elliptic Curve Parameters
+p = 157  # Prime modulus
+#y^2≡x^3+ax+b
+a = 77   # Coefficient a
+b = 25  # Coefficient b
+
+# Base Point (x, y)
+G = (64, 36)
+
+# Public Key (Q = d * G)
+d = 7  # Private key
+
+# Q = (23, 7)  # Corresponding public key
+def elgamal_generate_publc_key(k, G):
+    return multiply_point(k, G)
+
+def add_points(P, Q, a, p):
+    if P is None:
+        return Q
+    if Q is None:
+        return P
+
+    if P[0] == Q[0] and P[1] != Q[1]:
+        return None  # P + (-P) = point at infinity
+
+    if P != Q:
+        m = ((Q[1] - P[1]) * mod_inverse(Q[0] - P[0], p)) % p
+    else:
+        m = ((3 * P[0]**2 + a) * mod_inverse(2 * P[1], p)) % p
+
+    x_r = (m**2 - P[0] - Q[0]) % p
+    y_r = (m * (P[0] - x_r) - P[1]) % p
+
+    return x_r, y_r
+
+def multiply_point(k, point):
+    result = point
+    for i in range(k-1):#refactor
+        result = add_points(result, point, a, p)
+    return result
+
+def elgamal_encrypt(message, public_key, a):
+    k = random.randint(2, p - 2)
+    C1 = multiply_point(k, G)
+    C2 = add_points(message, multiply_point(k, public_key), a, p)
+    return C1, C2
+
+def elgamal_decrypt(C1, C2, private_key):
+    S = multiply_point(private_key, C1)
+    plaintext = add_points(C2, (S[0], -S[1]), a, p)
+    return plaintext
+
+
+def char_to_point(char, a, b):
+    # Simple conversion of a character to a point (e.g., ASCII value as x-coordinate)
+    x = ord(char)
+    y_squared = (x**3 + a*x + b) % p
+    y = pow(y_squared, (p + 1) // 4, p)  # Using square root modulo p
+    return (x, y)
+
+def point_to_char(point):
+    # Simple conversion of a point to a character (using x-coordinate)
+    return chr(point[0])
+
+def encrypt_text(plaintext, Q, a, b):
+    ciphertext = []
+
+    for char in plaintext:
+        M = char_to_point(char, a, b)
+        print("m1", M)
+        C1, C2 = elgamal_encrypt(M, Q, a)
+        ciphertext.append((C1, C2))
+
+    return ciphertext
+
+def decrypt_text(ciphertext, private_key, a, p):
+    decrypted_message = ""
+
+    for C1, C2 in ciphertext:
+        M = elgamal_decrypt(C1, C2, private_key)
+        print(C1, C2, M)
+        decrypted_message += point_to_char(M)
+
+    return decrypted_message
+
+Q = multiply_point(d, G)
+print("here", Q)
+print(add_points(G, G, a, p))
+#Example usage:
+message = (72, 28)  # Point on the elliptic curve
+C1, C2 = elgamal_encrypt(message, Q, a)
+print("c1 c2", C1, C2)
+decrypted_message = elgamal_decrypt(C1, C2, d)
+print("decrypted_message", decrypted_message)
+
+plaintext = "HELLO"
+ciphertext = encrypt_text(plaintext, Q, a, b)
+decrypted_message = decrypt_text(ciphertext, d, a, b)
+
+print("Original message:", plaintext)
+print("Encrypted message:", ciphertext)
+print("Decrypted message:", decrypted_message)
 
 if __name__ == '__main__':
     # 1
@@ -335,13 +438,15 @@ if __name__ == '__main__':
     i = 287
     print(i, "is prime:", solovay_strassen(i))
     # 8
-    print(first_primes_list)
-
     print("Task 8, RSA")
-    bits = 128
+    bits = 16
     public_key, private_key = generate_keypair(bits)
     message = "Supper secret message!"
     encrypted_message = encrypt(message, public_key)
     print("Encrypted message:", encrypted_message)
     decrypted_message = decrypt(encrypted_message, private_key)
     print("Decrypted message:", decrypted_message)
+
+    #9
+    print("Task 9, RSA")
+    print(elgamal_generate_publc_key(d,G))
