@@ -371,27 +371,32 @@ def decrypt_text(ciphertext, private_key, a, p):
 
 
 if __name__ == '__main__':
-    # 1
-    print(mobius(4))
-    print(euler(42))
-    a = 115
-    b = 1
-    print(gcd(115, 1), lcm(a, b))
+    # 1\
+    print("Task 1:")
+    print("Функція Мьобіуса від 4", mobius(4))
+    print("Функція Ейлера від 42", euler(42))
+    print("НСК 11 3",lcm(11, 3))
+    print()
     # 2
+    print("Task 2:")
     congruences = [(1, 2), (2, 3), (6, 7)]
-    print(chinese_remainder_theorem(congruences))
+    print("Система рівнянь:", congruences)
+    print("Розв'язок:", chinese_remainder_theorem(congruences))
+    print()
     # 3
+    print("Task 2:")
     a = 3
     b = 9
-    print(legendre_symbol(a, b))
-    print(jacobi_symbol(a, b))
+    print("Символ Лежандра 3, 9:", legendre_symbol(a, b))
+    print("Символ Якобі 3, 9:", jacobi_symbol(a, b))
+    print()
     # 4
     print("Task 4, Pollard's rho algorithm:")
-    print(rho_pollard(291))
+    print("Ро-алгоритм Полларда от 291", rho_pollard(291))
     print()
     # 5
     print("Task 5, Baby-step giant-step")
-    print(baby_step_giant_step(5, 3, 23))
+    print("Рішення 5^x = 3 (mod 23)", baby_step_giant_step(5, 3, 23))
     print()
     # 6
     print("Task 6, Cipolla")
@@ -420,7 +425,7 @@ if __name__ == '__main__':
     print("Decrypted message:", decrypted_message)
 
     #9
-    p = 157  # Prime modulus
+    p = 1579  # Prime modulus
     # y^2≡x^3+ax+b
     a = 77  # Coefficient a
     b = 25  # Coefficient b
